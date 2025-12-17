@@ -58,7 +58,30 @@
       padding: 0.25rem 0.5rem;
       cursor: pointer;
     }
-    .lang-switch button.active { border-color: var(--accent); color: var(--accent); }section { padding: 4rem 1rem; }
+    .lang-switch button.active { border-color: var(--accent); color: var(--accent); }
+    .color-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: 1rem;
+    }
+    .color-controls label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .color-controls select {
+      background: var(--card);
+      border: 1px solid #1f2937;
+      color: var(--text);
+      padding: 0.25rem;
+      cursor: pointer;
+    }
+    .color-controls input[type="color"] {
+      width: 30px;
+      height: 30px;
+      border: none;
+      cursor: pointer;
+    }section { padding: 4rem 1rem; }
 .hero {
   background: radial-gradient(circle at top, #1e3a8a, transparent 60%);
   text-align: center;
@@ -112,6 +135,22 @@ footer {
         <button data-lang="pl">PL</button>
         <button data-lang="de">DE</button>
         <button data-lang="ua">UA</button>
+      </div>
+      <div class="color-controls">
+        <label for="theme-select">Тема:</label>
+        <select id="theme-select">
+          <option value="dark">Темная</option>
+          <option value="light">Светлая</option>
+          <option value="blue">Синяя</option>
+          <option value="green">Зеленая</option>
+          <option value="purple">Фиолетовая</option>
+          <option value="custom">Пользовательская</option>
+        </select>
+        <input type="color" id="bg-color" title="Фон">
+        <input type="color" id="card-color" title="Карточки">
+        <input type="color" id="text-color" title="Текст">
+        <input type="color" id="muted-color" title="Вторичный текст">
+        <input type="color" id="accent-color" title="Акцент">
       </div>
     </div>
   </header>  <section class="hero">
@@ -287,5 +326,101 @@ footer {
     });
 
     setLanguage('en');
+
+    // Color themes
+    const themes = {
+      dark: {
+        bg: '#0b0f14',
+        card: '#121826',
+        text: '#e5e7eb',
+        muted: '#9ca3af',
+        accent: '#2563eb'
+      },
+      light: {
+        bg: '#ffffff',
+        card: '#f9fafb',
+        text: '#111827',
+        muted: '#6b7280',
+        accent: '#3b82f6'
+      },
+      blue: {
+        bg: '#1e3a8a',
+        card: '#3b82f6',
+        text: '#ffffff',
+        muted: '#bfdbfe',
+        accent: '#1d4ed8'
+      },
+      green: {
+        bg: '#064e3b',
+        card: '#10b981',
+        text: '#ffffff',
+        muted: '#a7f3d0',
+        accent: '#059669'
+      },
+      purple: {
+        bg: '#581c87',
+        card: '#a855f7',
+        text: '#ffffff',
+        muted: '#d8b4fe',
+        accent: '#7c3aed'
+      },
+      custom: {} // Will be set by user
+    };
+
+    function applyTheme(themeName) {
+      const theme = themes[themeName];
+      if (theme) {
+        document.documentElement.style.setProperty('--bg', theme.bg);
+        document.documentElement.style.setProperty('--card', theme.card);
+        document.documentElement.style.setProperty('--text', theme.text);
+        document.documentElement.style.setProperty('--muted', theme.muted);
+        document.documentElement.style.setProperty('--accent', theme.accent);
+        
+        // Update color inputs
+        document.getElementById('bg-color').value = theme.bg;
+        document.getElementById('card-color').value = theme.card;
+        document.getElementById('text-color').value = theme.text;
+        document.getElementById('muted-color').value = theme.muted;
+        document.getElementById('accent-color').value = theme.accent;
+        
+        // Save to localStorage
+        localStorage.setItem('selectedTheme', themeName);
+        localStorage.setItem('customTheme', JSON.stringify(themes.custom));
+      }
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
+    const savedCustom = localStorage.getItem('customTheme');
+    if (savedCustom) {
+      themes.custom = JSON.parse(savedCustom);
+    }
+    document.getElementById('theme-select').value = savedTheme;
+    applyTheme(savedTheme);
+
+    // Theme selector
+    document.getElementById('theme-select').addEventListener('change', (e) => {
+      applyTheme(e.target.value);
+    });
+
+    // Color pickers
+    ['bg', 'card', 'text', 'muted', 'accent'].forEach(prop => {
+      const input = document.getElementById(`${prop}-color`);
+      input.addEventListener('input', (e) => {
+        document.documentElement.style.setProperty(`--${prop}`, e.target.value);
+        // Update custom theme
+        themes.custom[prop] = e.target.value;
+        // Save custom theme
+        localStorage.setItem('customTheme', JSON.stringify(themes.custom));
+        // Set select to custom if not already
+        if (document.getElementById('theme-select').value !== 'custom') {
+          document.getElementById('theme-select').value = 'custom';
+          localStorage.setItem('selectedTheme', 'custom');
+        }
+      });
+    });
+
+    // Initialize with dark theme
+    applyTheme('dark');
   </script></body>
   </html>
