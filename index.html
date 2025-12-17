@@ -84,8 +84,15 @@ footer {
   font-size: 0.9rem;
   color: var(--muted);
 }
-@media (max-width: 768px) {
-  nav { display: none; }
+@media (max-width:900px){
+  nav.main-nav{display:none}
+  burger{display:inline-block}
+  hero{padding:36px 0}
+}
+@media (max-width:640px){
+  .hero h1{font-size:22px}
+  .container{width:96%}
+  .logo-box img{height:38px}
 }
 
   </style>
