@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ICTCT – International Center for Technological Consulting & Training</title>
+  <title>SpecTechnology</title>
   <meta name="description" content="International Center for Technological Consulting and Training (ICTCT) powered by SPECTECHNOLOGY S.A." />
   <style>
     :root {
@@ -146,7 +146,7 @@
     }
 
     /* Portrait: ensure section content fits — reduce paddings and font sizes on short screens */
-    @media (orientation: portrait) and (max-height: 700px) {
+    @media (orientation: portrait) and (max-height: 740px) {
       section > .container { padding-top: calc(var(--header-height) + 0.5rem); padding-bottom: 1rem; }
       .hero h1 { font-size: clamp(1.2rem, 6.5vw, 2rem); }
       .card { padding: 1rem; }
@@ -164,9 +164,32 @@
       section > .container { padding-top: calc(var(--header-height) + 1rem); }
     }
 .hero {
-  background: linear-gradient(to right, #23F786, var(--bg));
+  position: relative;
+  overflow: hidden;
   text-align: center;
+  background: linear-gradient(to right, #23F786, var(--bg));
 }
+
+/* background photo under gradient (80% opacity) */
+.hero::before{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('fon1.JPG');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.8;
+  z-index: 0;
+}
+.hero::after{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(35,247,134,0.18), var(--bg));
+  z-index: 1;
+  pointer-events: none;
+}
+.hero > .container{ position: relative; z-index: 2; }
 .hero h1 { font-size: clamp(1.8rem, 4vw, 3rem); }
 .hero p { max-width: 800px; margin: 1rem auto; color: var(--muted); }
 
