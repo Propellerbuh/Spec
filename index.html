@@ -20,10 +20,13 @@
       color: var(--text);
       line-height: 1.6;
     }
+    html, body { height: 100%; }
     header {
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 1000;
+      left: 0;
+      right: 0;
+      z-index: 1100;
       background: rgba(11,15,20,0.9);
       backdrop-filter: blur(6px);
       border-bottom: 1px solid #1f2937;
@@ -81,7 +84,62 @@
       height: 30px;
       border: none;
       cursor: pointer;
-    }section { padding: 4rem 1rem; }
+    }
+
+    /* ensure anchor jumps don't hide under fixed header */
+    html { scroll-padding-top: var(--header-height); scroll-behavior: smooth; }
+
+    /* Fullscreen sections responsive to device and orientation */
+    section {
+      min-height: 100svh;
+      min-height: 100dvh;
+      min-height: 100vh; /* fallback */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: stretch;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Make the inner container fill the section and distribute content */
+    section > .container {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 1rem;
+      width: 100%;
+    }
+
+    /* Hero centers content vertically */
+    .hero > .container { justify-content: center; }
+
+    /* Landscape: use horizontal layout to better use width */
+    @media (orientation: landscape) {
+      section { flex-direction: row; }
+      section > .container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+        gap: 2rem;
+      }
+      /* If a container has multiple direct children, distribute them evenly */
+      section > .container > * { width: 50%; }
+      /* Keep hero full width in landscape */
+      .hero > .container > * { width: 100%; }
+    }
+
+    @media (max-width:640px){
+      section > .container { padding: 1rem; }
+      section > .container { justify-content: space-between; }
+    }
+    @media (orientation: portrait) {
+      /* add extra top padding so headings don't go under the fixed header */
+      section > .container { padding-top: calc(var(--header-height) + 1rem); }
+    }
 .hero {
   background: linear-gradient(to right, #23F786, var(--bg));
   text-align: center;
@@ -118,49 +176,73 @@ footer {
   .logo-box img{height:38px}
 }
 
+    /* Header / burger styles */
+    :root { --header-height: 72px; }
+    body { padding-top: var(--header-height); }
+    .container.nav { display: flex; align-items: center; gap: 1rem; }
+    .burger { display: none; background: none; border: none; width: 44px; height: 44px; padding: 6px; cursor: pointer; align-items: center; justify-content: center; }
+    .burger-line { display: block; width: 22px; height: 2px; background: var(--text); margin: 4px 0; transition: transform .25s ease, opacity .2s ease; }
+    .burger.open .burger-line:nth-child(1){ transform: translateY(6px) rotate(45deg); }
+    .burger.open .burger-line:nth-child(2){ opacity: 0; }
+    .burger.open .burger-line:nth-child(3){ transform: translateY(-6px) rotate(-45deg); }
+
+    /* theme toggle button — transparent or same as header */
+    .theme-toggle{ background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--text); padding: 6px 8px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .theme-toggle:hover{ background: rgba(255,255,255,0.02); }
+    #theme-icon{ display:inline-block; transition: transform .42s cubic-bezier(.2,.8,.2,1); }
+    #theme-icon.spin{ transform: rotate(360deg); }
+
+    .main-nav { display: flex; align-items: center; gap: 1rem; }
+
+    @media (max-width:640px) and (orientation: portrait) {
+      .burger { display: inline-flex; }
+      .main-nav { display: flex; position: absolute; top: 100%; left: 0; right: 0; background: rgba(11,15,20,0.96); border-bottom: 1px solid #1f2937; flex-direction: column; padding: 0 1rem; gap: 0.5rem; max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-6px); transition: max-height .36s ease, opacity .28s ease, transform .28s ease; }
+      .main-nav.open { max-height: 420px; opacity: 1; transform: translateY(0); padding: 1rem; }
+      .main-nav nav { display: flex; flex-direction: column; gap: 0.5rem; }
+      .main-nav a { padding: 0.5rem 0; }
+      .color-controls { display: none; }
+    }
+
   </style>
 </head>
 <body>
   <header>
     <div class="container nav">
       <a href="/">
-    <img  src="noBgColor.png" style="width: 200px;height:auto" alt="logo">
-  </a>
-      <nav>
-        <a href="#about" data-i18n="menu.about"></a>
-        <a href="#services" data-i18n="menu.services"></a>
-        <a href="#audience" data-i18n="menu.audience"></a>
-        <a href="#contacts" data-i18n="menu.contacts"></a>
-      </nav>
-      <div class="lang-switch">
-        <button data-lang="en">EN</button>
-        <button data-lang="pl">PL</button>
-        <button data-lang="de">DE</button>
-        <button data-lang="ua">UA</button>
+        <img  src="noBgColor.png" style="width: 200px;height:auto" alt="logo">
+      </a>
+
+      <button class="burger" aria-controls="main-nav" aria-expanded="false" aria-label="Открыть меню">
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+      </button>
+
+      <div id="main-nav" class="main-nav">
+        <nav>
+          <a href="#about" data-i18n="menu.about"></a>
+          <a href="#services" data-i18n="menu.services"></a>
+          <a href="#audience" data-i18n="menu.audience"></a>
+          <a href="#contacts" data-i18n="menu.contacts"></a>
+        </nav>
+        <div class="lang-switch">
+          <button data-lang="en">EN</button>
+          <button data-lang="pl">PL</button>
+          <button data-lang="de">DE</button>
+          <button data-lang="ua">UA</button>
+        </div>
       </div>
-      <div class="color-controls">
-        <label for="theme-select">Тема:</label>
-        <select id="theme-select">
-          <option value="dark">Темная</option>
-          <option value="light">Светлая</option>
-          <option value="blue">Синяя</option>
-          <option value="green">Зеленая</option>
-          <option value="purple">Фиолетовая</option>
-          <option value="custom">Пользовательская</option>
-        </select>
-        <input type="color" id="bg-color" title="Фон">
-        <input type="color" id="card-color" title="Карточки">
-        <input type="color" id="text-color" title="Текст">
-        <input type="color" id="muted-color" title="Вторичный текст">
-        <input type="color" id="accent-color" title="Акцент">
-      </div>
+
+      <button id="theme-toggle" class="theme-toggle" aria-label="Переключить тему"><span id="theme-icon">🌙</span></button>
     </div>
-  </header>  <section class="hero">
+  </header>
+   <section class="hero">
     <div class="container">
       <h1 data-i18n="hero.title"></h1>
       <p data-i18n="hero.subtitle"></p>
     </div>
-  </section>  <section id="about">
+  </section>
+    <section id="about">
     <div class="container">
       <h2 data-i18n="about.title"></h2>
       <p data-i18n="about.text"></p>
@@ -329,100 +411,85 @@ footer {
 
     setLanguage('en');
 
-    // Color themes
+    // Simple dark/light theme toggle
     const themes = {
       dark: {
         bg: '#0b0f14',
         card: '#121826',
         text: '#e5e7eb',
         muted: '#c2c2c2',
-        accent: '#2563eb'
+        accent: '#a7f3d0'
       },
       light: {
-        bg: '#ffffff',
-        card: '#f9fafb',
-        text: '#111827',
-        muted: '#6b7280',
-        accent: '#3b82f6'
-      },
-      blue: {
-        bg: '#1e3a8a',
-        card: '#3b82f6',
-        text: '#ffffff',
-        muted: '#bfdbfe',
-        accent: '#1d4ed8'
-      },
-      green: {
         bg: '#064e3b',
         card: '#10b981',
         text: '#ffffff',
         muted: '#a7f3d0',
         accent: '#059669'
-      },
-      purple: {
-        bg: '#581c87',
-        card: '#a855f7',
-        text: '#ffffff',
-        muted: '#d8b4fe',
-        accent: '#7c3aed'
-      },
-      custom: {} // Will be set by user
+      }
     };
 
-    function applyTheme(themeName) {
-      const theme = themes[themeName];
-      if (theme) {
-        document.documentElement.style.setProperty('--bg', theme.bg);
-        document.documentElement.style.setProperty('--card', theme.card);
-        document.documentElement.style.setProperty('--text', theme.text);
-        document.documentElement.style.setProperty('--muted', theme.muted);
-        document.documentElement.style.setProperty('--accent', theme.accent);
-        
-        // Update color inputs
-        document.getElementById('bg-color').value = theme.bg;
-        document.getElementById('card-color').value = theme.card;
-        document.getElementById('text-color').value = theme.text;
-        document.getElementById('muted-color').value = theme.muted;
-        document.getElementById('accent-color').value = theme.accent;
-        
-        // Save to localStorage
-        localStorage.setItem('selectedTheme', themeName);
-        localStorage.setItem('customTheme', JSON.stringify(themes.custom));
-      }
+    function applyTheme(name){
+      const t = themes[name] || themes.dark;
+      document.documentElement.style.setProperty('--bg', t.bg);
+      document.documentElement.style.setProperty('--card', t.card);
+      document.documentElement.style.setProperty('--text', t.text);
+      document.documentElement.style.setProperty('--muted', t.muted);
+      document.documentElement.style.setProperty('--accent', t.accent);
+      localStorage.setItem('selectedTheme', name);
+      const icon = document.getElementById('theme-icon');
+      if(icon) icon.textContent = name === 'dark' ? '🌙' : '☀️';
     }
 
-    // Load saved theme
-    const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
-    const savedCustom = localStorage.getItem('customTheme');
-    if (savedCustom) {
-      themes.custom = JSON.parse(savedCustom);
-    }
-    document.getElementById('theme-select').value = savedTheme;
-    applyTheme(savedTheme);
+    let currentTheme = localStorage.getItem('selectedTheme') || 'dark';
+    applyTheme(currentTheme);
 
-    // Theme selector
-    document.getElementById('theme-select').addEventListener('change', (e) => {
-      applyTheme(e.target.value);
-    });
-
-    // Color pickers
-    ['bg', 'card', 'text', 'muted', 'accent'].forEach(prop => {
-      const input = document.getElementById(`${prop}-color`);
-      input.addEventListener('input', (e) => {
-        document.documentElement.style.setProperty(`--${prop}`, e.target.value);
-        // Update custom theme
-        themes.custom[prop] = e.target.value;
-        // Save custom theme
-        localStorage.setItem('customTheme', JSON.stringify(themes.custom));
-        // Set select to custom if not already
-        if (document.getElementById('theme-select').value !== 'custom') {
-          document.getElementById('theme-select').value = 'custom';
-          localStorage.setItem('selectedTheme', 'custom');
+    const themeToggle = document.getElementById('theme-toggle');
+    if(themeToggle){
+      themeToggle.addEventListener('click', ()=>{
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(currentTheme);
+        const icon = document.getElementById('theme-icon');
+        if(icon){
+          icon.classList.add('spin');
+          setTimeout(()=> icon.classList.remove('spin'), 480);
         }
       });
-    });
+    }
 
-    // Initialize with dark theme
-    applyTheme('dark');
+    // Header height calculation and burger menu
+    (function(){
+      const header = document.querySelector('header');
+      const burger = document.querySelector('.burger');
+      const mainNav = document.getElementById('main-nav');
+
+      function setHeaderHeight(){
+        if(!header) return;
+        const h = header.offsetHeight || 72;
+        document.documentElement.style.setProperty('--header-height', h + 'px');
+      }
+      setHeaderHeight();
+      window.addEventListener('resize', setHeaderHeight);
+      window.addEventListener('orientationchange', () => setTimeout(setHeaderHeight, 120));
+
+      if(burger && mainNav){
+        burger.addEventListener('click', ()=>{
+          const opened = mainNav.classList.toggle('open');
+          burger.setAttribute('aria-expanded', opened ? 'true' : 'false');
+          burger.classList.toggle('open', opened);
+          document.body.style.overflow = opened ? 'hidden' : '';
+        });
+
+        // close when clicking a nav link
+        mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', ()=>{
+          mainNav.classList.remove('open');
+          burger.classList.remove('open');
+          burger.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        }));
+      }
+      // ensure header height recalculation after load
+      window.addEventListener('load', setHeaderHeight);
+    })();
   </script></body>
   </html>
