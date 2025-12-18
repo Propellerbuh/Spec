@@ -111,6 +111,9 @@
       align-items: center;
       padding: 2rem 1rem;
       width: 100%;
+      max-height: calc(100svh - var(--header-height));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* Hero centers content vertically */
@@ -131,6 +134,26 @@
       /* Keep hero full width in landscape */
       .hero > .container > * { width: 100%; }
     }
+
+    /* Landscape grid adjustments: 3 columns on wider, 2 on narrower landscape screens */
+    @media (orientation: landscape) and (min-width: 900px) {
+      .grid { grid-template-columns: repeat(3, minmax(220px, 1fr)); }
+    }
+    @media (orientation: landscape) and (max-width: 899px) {
+      .grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+      section > .container { padding: 1rem; }
+      section > .container > * { width: auto; }
+    }
+
+    /* Portrait: ensure section content fits — reduce paddings and font sizes on short screens */
+    @media (orientation: portrait) and (max-height: 700px) {
+      section > .container { padding-top: calc(var(--header-height) + 0.5rem); padding-bottom: 1rem; }
+      .hero h1 { font-size: clamp(1.2rem, 6.5vw, 2rem); }
+      .card { padding: 1rem; }
+    }
+
+    /* Prevent horizontal overflow */
+    html, body { overflow-x: hidden; }
 
     @media (max-width:640px){
       section > .container { padding: 1rem; }
